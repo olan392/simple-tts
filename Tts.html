@@ -1,0 +1,169 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Simple TTS</title>
+
+    <!-- PWA & Mobile Meta Tags -->
+    <link rel="manifest" href="manifest.json">
+    <meta name="theme-color" content="#0f172a">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <link rel="apple-touch-icon" href="icon.png">
+
+    <style>
+        * { box-sizing: border-box; }
+        
+        body {
+            margin: 0;
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            background: #0f172a;
+            color: white;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .card {
+            background: #1e293b;
+            padding: 30px;
+            border-radius: 24px;
+            width: 100%;
+            max-width: 400px;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.3);
+            border: 1px solid rgba(255,255,255,0.1);
+        }
+
+        h2 { margin-top: 0; font-weight: 600; text-align: center; }
+
+        label { display: block; margin-bottom: 8px; font-size: 14px; color: #94a3b8; }
+
+        textarea {
+            width: 100%;
+            height: 120px;
+            border-radius: 12px;
+            border: 1px solid #334155;
+            padding: 12px;
+            font-size: 16px;
+            background: #0f172a;
+            color: white;
+            resize: none;
+            outline: none;
+        }
+
+        textarea:focus { border-color: #3b82f6; }
+
+        select {
+            width: 100%;
+            padding: 12px;
+            margin: 15px 0;
+            border-radius: 12px;
+            background: #334155;
+            color: white;
+            border: none;
+            font-size: 14px;
+            cursor: pointer;
+        }
+
+        .btn-group { display: flex; gap: 10px; }
+
+        button {
+            flex: 1;
+            padding: 14px;
+            border: none;
+            border-radius: 12px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: opacity 0.2s, transform 0.1s;
+        }
+
+        button:active { transform: scale(0.98); }
+
+        .speak { background: #22c55e; color: #052e16; }
+        .stop { background: #ef4444; color: white; }
+        
+        button:disabled { opacity: 0.5; cursor: not-allowed; }
+    </style>
+</head>
+<body>
+
+<div class="card">
+    <h2>Simple TTS</h2>
+
+    <label for="text">Text to Speak</label>
+    <textarea id="text">Hello! This is text to speech.</textarea>
+    
+    <label for="voice" style="margin-top: 15px;">Select Voice</label>
+    <select id="voice"></select>
+
+    <div class="btn-group">
+        <button class="speak" onclick="speak()">Speak</button>
+        <button class="stop" onclick="stopSpeech()">Stop</button>
+    </div>
+</div>
+
+<script>
+let voices = [];
+const voiceSelect = document.getElementById("voice");
+
+function loadVoices() {
+    // Get list of voices from the browser
+    voices = speechSynthesis.getVoices();
+    
+    if (voices.length === 0) return;
+
+    voiceSelect.innerHTML = "";
+    voices.forEach((v, i) => {
+        const option = document.createElement("option");
+        option.value = i;
+        // Show name and highlight the default voice
+        option.textContent = `${v.name} (${v.lang})${v.default ? ' — Default' : ''}`;
+        voiceSelect.appendChild(option);
+    });
+}
+
+// Chrome loads voices asynchronously, so we need this event
+if (speechSynthesis.onvoiceschanged !== undefined) {
+    speechSynthesis.onvoiceschanged = loadVoices;
+}
+
+// Initial load for Safari/Firefox
+loadVoices();
+
+function speak() {
+    // Stop any current speech before starting new one
+    speechSynthesis.cancel();
+
+    const text = document.getElementById("text").value;
+    if (!text.trim()) return;
+
+    const utter = new SpeechSynthesisUtterance(text);
+    const selectedVoiceIndex = voiceSelect.value;
+    
+    if (voices[selectedVoiceIndex]) {
+        utter.voice = voices[selectedVoiceIndex];
+    }
+
+    speechSynthesis.speak(utter);
+}
+
+function stopSpeech() {
+    speechSynthesis.cancel();
+}
+
+// ✅ Corrected Service Worker registration logic
+if ('serviceWorker' in navigator) {
+    window.addEventListener('load', () => {
+        navigator.serviceWorker.register('sw.js')
+            .then(reg => console.log('SW registered! Scope:', reg.scope))
+            .catch(err => console.error('SW registration failed:', err));
+    });
+}
+</script>
+
+</body>
+</html>

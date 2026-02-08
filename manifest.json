@@ -1,0 +1,23 @@
+{
+  "name": "Simple TTS",
+  "short_name": "Simple TTS",
+  "id": "simple-tts-app",
+  "start_url": "Tts.html",
+  "display": "standalone",
+  "background_color": "#0f172a",
+  "theme_color": "#ef4444",
+  "icons": [
+    {
+      "src": "https://placehold.co/192x192/ef4444/white.png?text=TTS",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "https://placehold.co/512x512/ef4444/white.png?text=TTS",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
+    }
+  ]
+}
